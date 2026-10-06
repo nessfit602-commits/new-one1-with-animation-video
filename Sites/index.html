@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Adress Shoes | Premium Footwear Collection in Renala Khurd</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print"
+    onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </noscript>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- GSAP + ScrollTrigger + Lenis (smooth scroll) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <!-- Supabase JS Client & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+              accent: '#06b6d4'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html {
+      background: #020617;
+    }
+
+    html.lenis,
+    html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    /* Fixed site-wide video background */
+    #siteBgVideo {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    #siteBgVideo video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      will-change: transform;
+    }
+
+    #siteBgVideo .bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(2, 6, 23, 0.82), rgba(2, 6, 23, 0.72) 50%, rgba(2, 6, 23, 0.85));
+    }
+
+    /* Page content floats above the fixed video */
+    main,
+    footer {
+      position: relative;
+      z-index: 10;
+    }
+
+    #siteHeader {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 99999 !important;
+    }
+
+    .glass-nav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* Scroll progress bar */
+    #scrollProgress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #06b6d4);
+      z-index: 100000 !important;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.7);
+    }
+
+    /* Elements start hidden; GSAP reveals them */
+    .reveal-up {
+      opacity: 0;
+      transform: translateY(60px);
+    }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(60px);
+    }
+
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+
+    /* Hero headline line mask animation */
+    .hero-line {
+      overflow: hidden;
+    }
+
+    .hero-line span {
+      display: inline-block;
+      transform: translateY(110%);
+    }
+
+    /* Scroll-scrub video section */
+    #videoScrubSection {
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #scrubVideo {
+      width: 100%;
+      height: 96%;
+      object-fit: cover;
+      will-change: transform;
+    }
+
+    /* Marquee strip */
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* Floating WhatsApp button pulse */
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+      }
+
+      70% {
+        box-shadow: 0 0 0 16px rgba(34, 197, 94, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    .wa-pulse {
+      animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Cursor glow follower (desktop only) */
+    #cursorGlow {
+      position: fixed;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 65%);
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      #cursorGlow {
+        display: block;
+      }
+    }
+
+    /* Scroll-down mouse indicator */
+    @keyframes wheelDrop {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      70% {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .mouse-wheel {
+      animation: wheelDrop 1.6s ease-out infinite;
+    }
+  </style>
+</head>
+
+<body
+  class="text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-slate-950 min-h-screen overflow-x-hidden">
+
+  <!-- Scroll progress bar -->
+  <div id="scrollProgress"></div>
+
+  <!-- Cursor glow -->
+  <div id="cursorGlow"></div>
+
+  <!-- Fixed site-wide video background (plays through the whole page) -->
+  <div id="siteBgVideo" aria-hidden="true">
+    <video id="bgVid" autoplay muted loop playsinline preload="auto">
+      <source src="assets/showcase-video.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- ================= HEADER & NAVIGATION (STICKY & MOVEABLE) ================= -->
+  <header id="siteHeader"
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-nav border-b border-slate-800">
+    <div id="navContainer"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 transition-all duration-300 flex items-center justify-between">
+
+      <!-- Brand Logo -->
+      <a href="#home" class="flex items-center gap-3 group">
+        <div>
+          <span class="text-xl font-bold tracking-tight text-white block leading-none">Adress <span
+              class="text-brand-500">Shoes</span></span>
+          <span class="text-[10px] text-slate-400 font-medium tracking-widest uppercase">Renala Khurd</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8">
+        <a href="#home"
+          class="nav-link text-sm font-medium text-slate-300 hover:text-brand-500 transition-colors py-1 relative">
+          <span>Home</span>
+          <span
+            class="nav-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full scale-x-0 transition-transform duration-300 origin-left"></span>
+        </a>
+        <a href="#about-founder"
+          class="nav-link text-sm font-medium text-slate-300 hover:text-brand-500 transition-colors py-1 relative">
+          <span>About Founder</span>
+          <span
+            class="nav-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full scale-x-0 transition-transform duration-300 origin-left"></span>
+        </a>
+        <a href="#collection"
+          class="nav-link text-sm font-medium text-slate-300 hover:text-brand-500 transition-colors py-1 relative">
+          <span>Collections</span>
+          <span
+            class="nav-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full scale-x-0 transition-transform duration-300 origin-left"></span>
+        </a>
+        <a href="#contact"
+          class="nav-link text-sm font-medium text-slate-300 hover:text-brand-500 transition-colors py-1 relative">
+          <span>Contact</span>
+          <span
+            class="nav-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full scale-x-0 transition-transform duration-300 origin-left"></span>
+        </a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Direct Admin Link -->
+        <a href="admin.html"
+          class="px-3.5 py-2 rounded-full bg-slate-900 border border-slate-700 hover:border-brand-500 text-xs font-semibold text-slate-300 hover:text-brand-500 transition-all flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-user-gear text-brand-500"></i>
+          <span>Admin</span>
+        </a>
+
+        <a href="https://wa.me/923426003601?text=Hello%20Muhammad%20Adress,%20I%20want%20to%20inquire%20about%20shoes"
+          target="_blank" rel="noopener noreferrer"
+          class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-600/90 text-slate-950 font-bold text-xs hover:bg-brand-500 transition-all shadow-md shadow-brand-600/20">
+          <i class="fa-brands fa-whatsapp text-slate-950 text-base"></i>
+          <span>WhatsApp</span>
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobileMenuBtn" aria-label="Toggle Navigation Menu"
+          class="md:hidden p-2 text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobileMenu"
+      class="hidden md:hidden bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+      <a href="#home" onclick="toggleMobileMenu()"
+        class="block py-2 text-sm text-slate-300 hover:text-brand-500">Home</a>
+      <a href="#about-founder" onclick="toggleMobileMenu()"
+        class="block py-2 text-sm text-slate-300 hover:text-brand-500">About Founder</a>
+      <a href="#collection" onclick="toggleMobileMenu()"
+        class="block py-2 text-sm text-slate-300 hover:text-brand-500">Collections</a>
+      <a href="#contact" onclick="toggleMobileMenu()"
+        class="block py-2 text-sm text-slate-300 hover:text-brand-500">Contact</a>
+      <a href="admin.html" class="block py-2 text-sm font-bold text-brand-500 hover:text-brand-400">Admin Dashboard</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO SECTION ================= -->
+  <main>
+    <section id="home" class="relative h-screen overflow-hidden flex items-center">
+
+      <!-- Readability gradient over the fixed video -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(2,6,23,0.25)_0%,rgba(2,6,23,0.55)_100%)]">
+      </div>
+      <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/90 to-transparent"></div>
+
+      <div id="heroContent" class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-3xl space-y-6">
+
+          <div
+            class="hero-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-500 text-xs font-semibold tracking-wide uppercase opacity-0">
+            <i class="fa-solid fa-store"></i>
+            <span>Adress Shoes • Renala Khurd</span>
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.05]">
+            <span class="hero-line block"><span>Step Into Style</span></span>
+            <span class="hero-line block"><span>With <span
+                  class="bg-gradient-to-r from-brand-500 to-brand-accent bg-clip-text text-transparent">Adress
+                  Shoes</span></span></span>
+          </h1>
+
+          <p id="heroDesc" class="text-base sm:text-lg text-slate-300 max-w-xl font-normal opacity-0">
+            Discover our extensive footwear collection tailored for every family member. From modern winter sneakerboots
+            to elegant formal and casual footwear in all sizes.
+          </p>
+
+          <div id="heroBtns" class="flex flex-wrap items-center gap-4 pt-2 opacity-0">
+            <a href="#collection"
+              class="hero-cta px-8 py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-brand-600/30 transition-all hover:scale-105">
+              Explore Showcase
+            </a>
+            <a href="#about-founder"
+              class="hero-cta px-8 py-4 rounded-xl bg-slate-900/70 backdrop-blur border border-slate-700 hover:border-slate-500 text-slate-200 font-bold text-sm tracking-wide transition-all">
+              Meet Muhammad Adress
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div id="scrollIndicator"
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-slate-400">
+        <div class="w-6 h-10 rounded-full border-2 border-slate-500 flex justify-center pt-2">
+          <div class="mouse-wheel w-1 h-2 rounded-full bg-brand-500"></div>
+        </div>
+        <span class="text-[10px] tracking-widest uppercase">Scroll</span>
+      </div>
+    </section>
+
+    <!-- ================= MARQUEE STRIP ================= -->
+    <div
+      class="bg-brand-600 py-3 overflow-hidden -rotate-1 origin-left scale-105 border-y border-slate-950/20 relative z-10">
+      <div class="marquee-track text-slate-950 font-extrabold text-sm tracking-widest uppercase">
+        <span class="flex items-center gap-8 pr-8">
+          <span>Winter Sneakerboots</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Men's Formal</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Ladies Collection</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Kids Range</span><i class="fa-solid fa-star text-xs"></i>
+          <span>All Sizes Available</span><i class="fa-solid fa-star text-xs"></i>
+          <span>20+ Years Experience</span><i class="fa-solid fa-star text-xs"></i>
+        </span>
+        <span class="flex items-center gap-8 pr-8" aria-hidden="true">
+          <span>Winter Sneakerboots</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Men's Formal</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Ladies Collection</span><i class="fa-solid fa-star text-xs"></i>
+          <span>Kids Range</span><i class="fa-solid fa-star text-xs"></i>
+          <span>All Sizes Available</span><i class="fa-solid fa-star text-xs"></i>
+          <span>20+ Years Experience</span><i class="fa-solid fa-star text-xs"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- ================= SCROLL-SCRUB VIDEO SHOWCASE ================= -->
+    <section id="videoScrubSection" class="relative">
+      <video id="scrubVideo" muted playsinline preload="auto">
+        <source src="assets/showcase-video.mp4" type="video/mp4">
+      </video>
+
+      <!-- Overlay captions -->
+      <div class="absolute inset-0 flex items-end pb-24 md:pb-32 pointer-events-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div class="scrub-caption max-w-md" data-step="0">
+            <span class="text-brand-500 text-xs font-bold uppercase tracking-widest">Crafted Experience</span>
+            <h3 class="text-3xl sm:text-4xl font-extrabold text-white mt-2 drop-shadow-lg">Where Quality Meets Design
+            </h3>
+          </div>
+
+          <div class="scrub-caption max-w-md opacity-0" data-step="1">
+            <span class="text-brand-500 text-xs font-bold uppercase tracking-widest">Adress Shoes</span>
+            <h3 class="text-3xl sm:text-4xl font-extrabold text-white mt-2 drop-shadow-lg">A Legacy of Trust Since 20+
+              Years</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress hint -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3">
+        <div class="w-40 h-1 bg-slate-700/70 rounded-full overflow-hidden">
+          <div id="scrubBar" class="h-full w-0 bg-gradient-to-r from-brand-500 to-brand-accent"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FOUNDER & ABOUT SECTION ================= -->
+    <section id="about-founder"
+      class="py-12 sm:py-24 bg-slate-900/60 border-y border-slate-800/80 relative overflow-hidden">
+      <!-- Background grid -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div id="aboutGrid" class="absolute left-0 right-0 -top-24 h-[120%] opacity-[0.05]"
+          style="background-image: linear-gradient(rgba(34,197,94,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.6) 1px, transparent 1px); background-size: 44px 44px;">
+        </div>
+        <div class="about-orb absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-500/15 blur-3xl"
+          data-speed="60"></div>
+        <div class="about-orb absolute top-1/3 -right-32 w-[28rem] h-[28rem] rounded-full bg-brand-accent/10 blur-3xl"
+          data-speed="-50"></div>
+      </div>
+
+      <div class="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-12 gap-3 sm:gap-6 lg:gap-12 items-start lg:items-center">
+
+          <!-- Owner Photo Frame -->
+          <div class="col-span-5 lg:col-span-5 relative">
+            <div
+              class="absolute -inset-2 bg-gradient-to-br from-brand-500/30 to-brand-accent/20 rounded-2xl sm:rounded-3xl blur-xl">
+            </div>
+            <div
+              class="relative bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-2 sm:p-3 shadow-2xl reveal-scale">
+              <div class="overflow-hidden rounded-xl sm:rounded-2xl">
+                <img id="founderImg" src="assets/50dc8de2-9742-41fd-b7cc-3b1b88935197.png"
+                  alt="Muhammad Adress - Owner of Adress Shoes"
+                  class="w-full aspect-[3/4] object-cover object-top rounded-xl sm:rounded-2xl will-change-transform">
+              </div>
+
+              <div
+                class="mt-2 sm:mt-4 bg-slate-950/90 backdrop-blur-md p-2 sm:p-4 rounded-lg sm:rounded-xl border border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+                <div>
+                  <h4 class="text-xs sm:text-base font-bold text-white leading-tight">Muhammad Adress</h4>
+                  <p class="text-[10px] sm:text-xs text-brand-500 font-medium">Owner • Adress Shoes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Founder Details -->
+          <div class="col-span-7 lg:col-span-7 space-y-3 sm:space-y-6">
+            <div class="reveal-up">
+              <span class="text-brand-500 text-[10px] sm:text-xs font-bold uppercase tracking-wider">About the
+                Founder</span>
+              <h2 class="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white mt-0.5 sm:mt-1">Introduction</h2>
+            </div>
+
+            <p class="text-slate-300 text-xs sm:text-sm lg:text-base leading-relaxed reveal-up">
+              Welcome to <strong class="text-white">Adress Shoes</strong>, managed and operated by <strong
+                class="text-brand-500">Muhammad Adress</strong>. With over 20 years of dedicated service in Renala
+              Khurd, we take pride in offering high-quality, durable, and comfortable footwear for every individual and
+              family.
+            </p>
+
+            <!-- Categories Bullet List -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 pt-1 sm:pt-2">
+              <div
+                class="cat-card flex items-start gap-2 sm:gap-3 bg-slate-950/50 p-2.5 sm:p-4 rounded-xl border border-slate-800 reveal-left">
+                <i class="fa-solid fa-person text-brand-500 text-sm sm:text-xl mt-0.5 sm:mt-1 shrink-0"></i>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-white">Men's Collection</h4>
+                  <p class="text-[10px] sm:text-xs text-slate-400">Formal leather, casual wear, boots &amp; sports
+                    shoes.</p>
+                </div>
+              </div>
+
+              <div
+                class="cat-card flex items-start gap-2 sm:gap-3 bg-slate-950/50 p-2.5 sm:p-4 rounded-xl border border-slate-800 reveal-right">
+                <i class="fa-solid fa-person-dress text-brand-accent text-sm sm:text-xl mt-0.5 sm:mt-1 shrink-0"></i>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-white">Ladies Collection</h4>
+                  <p class="text-[10px] sm:text-xs text-slate-400">Comfortable heels, fancy sandals, &amp; daily wear.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="cat-card flex items-start gap-2 sm:gap-3 bg-slate-950/50 p-2.5 sm:p-4 rounded-xl border border-slate-800 reveal-left">
+                <i class="fa-solid fa-child text-amber-400 text-sm sm:text-xl mt-0.5 sm:mt-1 shrink-0"></i>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-white">Kids Collection</h4>
+                  <p class="text-[10px] sm:text-xs text-slate-400">Durable school shoes, sneakers, &amp; party wear.</p>
+                </div>
+              </div>
+
+              <div
+                class="cat-card flex items-start gap-2 sm:gap-3 bg-slate-950/50 p-2.5 sm:p-4 rounded-xl border border-slate-800 reveal-right">
+                <i class="fa-solid fa-snowflake text-cyan-400 text-sm sm:text-xl mt-0.5 sm:mt-1 shrink-0"></i>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-bold text-white">Winter Sneaker/boots</h4>
+                  <p class="text-[10px] sm:text-xs text-slate-400">High-top modern boots available in all sizes.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-1 sm:pt-2 flex items-center gap-4 reveal-up">
+              <a href="https://wa.me/923426003601?text=Salam%20Muhammad%20Adress%20sahib,%20I%20want%20to%20ask%20about%20shoe%20stock"
+                target="_blank" rel="noopener noreferrer"
+                class="px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-lg sm:rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold text-xs sm:text-sm inline-flex items-center gap-1.5 sm:gap-2 shadow-md transition-all hover:scale-105">
+                <i class="fa-brands fa-whatsapp text-sm sm:text-lg"></i>
+                Contact Muhammad Adress
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STATS STRIP ================= -->
+    <section class="py-16 bg-slate-950/60 relative">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-3 gap-6 text-center">
+          <div class="reveal-up">
+            <p class="text-3xl sm:text-5xl font-extrabold text-white"><span class="counter" data-target="20">0</span>+
+            </p>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">Years Experience</p>
+          </div>
+          <div class="reveal-up">
+            <p class="text-3xl sm:text-5xl font-extrabold text-white"><span class="counter" data-target="100">0</span>%
+            </p>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">Quality Assured</p>
+          </div>
+          <div class="reveal-up">
+            <p class="text-3xl sm:text-5xl font-extrabold text-white"><span class="counter" data-target="4">0</span></p>
+            <p class="text-xs sm:text-sm text-slate-400 mt-1">Collections (Men, Ladies, Kids, Winter)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INTERACTIVE SHOWCASE GRID ================= -->
+    <section id="collection" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12 space-y-3 reveal-up">
+        <span class="text-brand-500 text-xs font-bold uppercase tracking-wider">Our Products</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Explore Our Showcase</h2>
+        <p class="text-slate-400 text-sm">Browse through top footwear collections. All sizes are available in store.</p>
+      </div>
+
+      <!-- Filter Category Tabs -->
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-10 reveal-up">
+        <button onclick="filterShoes('all')"
+          class="filter-btn active px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-brand-600 text-slate-950 shadow-md"
+          data-filter="all">All Collection</button>
+        <button onclick="filterShoes('winter')"
+          class="filter-btn px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-slate-900 border border-slate-800 text-slate-300 hover:border-brand-500"
+          data-filter="winter">Winter Sneaker/boots</button>
+        <button onclick="filterShoes('men')"
+          class="filter-btn px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-slate-900 border border-slate-800 text-slate-300 hover:border-brand-500"
+          data-filter="men">Men's</button>
+        <button onclick="filterShoes('ladies')"
+          class="filter-btn px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-slate-900 border border-slate-800 text-slate-300 hover:border-brand-500"
+          data-filter="ladies">Ladies</button>
+        <button onclick="filterShoes('kids')"
+          class="filter-btn px-5 py-2.5 rounded-full text-xs font-bold transition-all bg-slate-900 border border-slate-800 text-slate-300 hover:border-brand-500"
+          data-filter="kids">Kids</button>
+      </div>
+
+      <!-- Product Grid Container (Populated dynamically via Supabase) -->
+      <div id="shoeGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Cards rendered via JS -->
+      </div>
+    </section>
+
+    <!-- ================= CONTACT & LOCATION ================= -->
+    <section id="contact" class="py-24 relative border-t border-slate-800/80 overflow-hidden">
+      <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+          <div class="space-y-6">
+            <div class="reveal-up">
+              <span class="text-brand-500 text-xs font-bold uppercase tracking-wider">Visit Our Store</span>
+              <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-2">Welcome to Adress Shoes</h2>
+              <p class="text-slate-400 text-sm leading-relaxed mt-3">
+                Visit our outlet to explore our full seasonal stock or contact
+                <a href="#about-founder" class="text-brand-500 font-bold hover:underline transition-all">Muhammad
+                  Adress</a>
+                directly for stock availability and inquiries.
+              </p>
+            </div>
+
+            <div class="space-y-4 pt-2">
+              <!-- Google Maps Link (Fixed query) -->
+              <a href="https://www.google.com/maps/search/?api=1&query=Adress+Shoes+Renala+Khurd" target="_blank"
+                rel="noopener noreferrer"
+                class="contact-card flex items-center gap-4 p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-brand-500 hover:bg-slate-800/80 transition-all group cursor-pointer reveal-left">
+                <div
+                  class="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-500 text-xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-slate-400">Shop Address (Click for Google Maps)</p>
+                  <p class="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">Sadar Bazar,
+                    Adress Shoes, Renala Khurd, Punjab, Pakistan</p>
+                </div>
+                <div class="text-slate-500 group-hover:text-brand-500 text-sm">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </div>
+              </a>
+
+              <!-- Shop Owner Link -->
+              <a href="#about-founder"
+                class="contact-card flex items-center gap-4 p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-brand-500 transition-all group cursor-pointer reveal-right">
+                <div
+                  class="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-500 text-xl group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-slate-400">Shop Owner</p>
+                  <p class="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">Muhammad
+                    Adress</p>
+                </div>
+                <div class="text-slate-500 group-hover:text-brand-500 text-sm">
+                  <i class="fa-solid fa-arrow-down-long"></i>
+                </div>
+              </a>
+
+              <!-- WhatsApp Card -->
+              <a href="https://wa.me/923426003601" target="_blank" rel="noopener noreferrer"
+                class="contact-card flex items-center gap-4 p-4 bg-slate-900 border border-slate-800 rounded-xl hover:border-brand-500 transition-all group cursor-pointer reveal-left">
+                <div
+                  class="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center text-brand-500 text-xl group-hover:scale-110 transition-transform">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs text-slate-400">Instant Inquiry</p>
+                  <p class="text-sm font-semibold text-white group-hover:text-brand-500 transition-colors">WhatsApp
+                    +923426003601</p>
+                </div>
+                <div class="text-slate-500 group-hover:text-brand-500 text-sm">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </div>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-slate-950/80 backdrop-blur-md border-t border-slate-800 py-12 text-slate-400 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-slate-950 font-black text-sm">
+          AS
+        </div>
+        <span class="text-sm font-bold text-white">Adress Shoes</span>
+        <span class="text-slate-600">|</span>
+        <span>Renala Khurd</span>
+      </div>
+
+      <p class="text-center sm:text-left">
+        &copy; 2026 Developed by <strong>Muhammad Salman Ismail</strong> from SI Soft.
+      </p>
+
+      <!-- Social & Admin Links -->
+      <div class="flex items-center gap-4 text-base">
+        <a href="admin.html"
+          class="px-3 py-1 rounded bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-brand-500 hover:border-brand-500 transition-all">
+          <i class="fa-solid fa-lock mr-1"></i> Admin Panel
+        </a>
+        <a href="https://www.facebook.com/share/1C451BeGD5/" target="_blank" rel="noopener noreferrer"
+          aria-label="Facebook Page"
+          class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-blue-500 transition-all">
+          <i class="fa-brands fa-facebook"></i>
+        </a>
+        <a href="https://wa.me/923426003601" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Contact"
+          class="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-brand-500 transition-all">
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://wa.me/923426003601" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
+    class="wa-pulse fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-brand-600 hover:bg-brand-500 text-slate-950 flex items-center justify-center text-2xl shadow-2xl shadow-brand-600/40 transition-all hover:scale-110">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- ================= PRODUCT DETAIL MODAL ================= -->
+  <div id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"
+    class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div id="modalBox"
+      class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 relative shadow-2xl space-y-4">
+
+      <button onclick="closeModal()" aria-label="Close Modal"
+        class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <img id="modalImg" src="" alt="Shoe Modal" class="w-full h-56 object-cover rounded-2xl bg-slate-950">
+
+      <div>
+        <div class="flex items-center justify-between">
+          <span id="modalTag" class="text-xs text-brand-500 font-semibold uppercase tracking-wider">Tag</span>
+          <span id="modalPrice" class="text-base font-extrabold text-brand-500">PKR 0</span>
+        </div>
+        <h3 id="modalTitle" class="text-xl font-bold text-white mt-1">Title</h3>
+        <p id="modalDesc" class="text-xs text-slate-300 mt-2 leading-relaxed">Description</p>
+      </div>
+
+      <div class="pt-2 border-t border-slate-800">
+        <span class="text-xs font-semibold text-slate-400 block mb-1">Available Sizes:</span>
+        <span id="modalSizes"
+          class="text-xs font-bold text-brand-500 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20 inline-block">39,
+          40, 41</span>
+      </div>
+
+      <a id="modalWaBtn" href="#" target="_blank" rel="noopener noreferrer"
+        class="block text-center py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-slate-950 font-bold text-sm transition-all flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-lg"></i>
+        <span>Inquire Stock on WhatsApp</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+    let productsList = [];
+
+    // Load Live Products from Supabase or Fallback
+    async function initProductStore() {
+      try {
+        const { data } = await fetchProductsFromSupabase();
+        productsList = data;
+        renderProducts(productsList);
+      } catch (e) {
+        console.error('Failed to load store products:', e);
+      }
+    }
+
+    function renderProducts(items) {
+      const grid = document.getElementById('shoeGrid');
+      if (!grid) return;
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">No products found in this category.</div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(p => `
+        <div class="shoe-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden group hover:border-brand-500/50 transition-all duration-300 flex flex-col" data-category="${p.category}">
+          <div class="relative h-56 overflow-hidden bg-slate-950">
+            <img src="${p.image_url}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <span class="absolute top-3 left-3 bg-brand-500/90 text-slate-950 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">${p.tag || 'New'}</span>
+            <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur text-brand-500 text-xs font-extrabold px-2.5 py-1 rounded-full border border-slate-700">PKR ${Number(p.price).toLocaleString()}</span>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+            <div>
+              <span class="text-[11px] text-brand-500 font-semibold uppercase tracking-wider">${p.category} Collection</span>
+              <h3 class="text-base font-bold text-white mt-1 line-clamp-1">${p.title}</h3>
+              <p class="text-xs text-slate-400 mt-1 line-clamp-2">${p.description || 'High quality durable footwear.'}</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+              <div>
+                <span class="text-[10px] text-slate-400 block uppercase font-medium">Sizes</span>
+                <span class="text-xs font-semibold text-slate-200 font-mono">${p.sizes}</span>
+              </div>
+              <button onclick="openModal('${p.id}')" class="px-3.5 py-2 bg-slate-800 hover:bg-brand-600 hover:text-slate-950 text-slate-200 text-xs font-bold rounded-xl transition-all">
+                View Details
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Filter Shoes
+    function filterShoes(category) {
+      const buttons = document.querySelectorAll('.filter-btn');
+
+      buttons.forEach(btn => {
+        if (btn.getAttribute('data-filter') === category) {
+          btn.classList.add('bg-brand-600', 'text-slate-950', 'shadow-md');
+          btn.classList.remove('bg-slate-900', 'text-slate-300');
+        } else {
+          btn.classList.remove('bg-brand-600', 'text-slate-950', 'shadow-md');
+          btn.classList.add('bg-slate-900', 'text-slate-300');
+        }
+      });
+
+      if (category === 'all') {
+        renderProducts(productsList);
+      } else {
+        const filtered = productsList.filter(p => p.category === category);
+        renderProducts(filtered);
+      }
+      ScrollTrigger.refresh();
+    }
+
+    // Modal Functions
+    function openModal(id) {
+      const p = productsList.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('modalTitle').innerText = p.title;
+      document.getElementById('modalTag').innerText = p.tag || p.category;
+      document.getElementById('modalPrice').innerText = `PKR ${Number(p.price).toLocaleString()}`;
+      document.getElementById('modalDesc').innerText = p.description || '';
+      document.getElementById('modalSizes').innerText = p.sizes;
+      document.getElementById('modalImg').src = p.image_url;
+
+      const message = `Salam Muhammad Adress sahib, I want to inquire about "${p.title}" (Price: PKR ${p.price}) at Adress Shoes Renala Khurd.`;
+      document.getElementById('modalWaBtn').href = `https://wa.me/923426003601?text=${encodeURIComponent(message)}`;
+
+      const modal = document.getElementById('productModal');
+      modal.classList.remove('hidden');
+      gsap.fromTo('#modalBox',
+        { opacity: 0, scale: 0.85, y: 40 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'back.out(1.6)' }
+      );
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('productModal');
+      gsap.to('#modalBox', {
+        opacity: 0, scale: 0.9, y: 20, duration: 0.2, ease: 'power2.in',
+        onComplete: () => modal.classList.add('hidden')
+      });
+    }
+
+    // Escape Key Listener
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    document.getElementById('productModal').addEventListener('click', (e) => {
+      if (e.target.id === 'productModal') closeModal();
+    });
+
+    // Mobile Menu
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    function toggleMobileMenu() { mobileMenu.classList.add('hidden'); }
+
+    // =========================================================
+    // SCROLL ANIMATIONS (GSAP + ScrollTrigger + Lenis)
+    // =========================================================
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({ lerp: 0.1, wheelMultiplier: 1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          lenis.scrollTo(target, { offset: -80 });
+        }
+      });
+    });
+
+    ScrollTrigger.create({
+      start: 0,
+      end: () => document.documentElement.scrollHeight - window.innerHeight,
+      onUpdate: (self) => {
+        document.getElementById('scrollProgress').style.width = (self.progress * 100) + '%';
+      }
+    });
+
+    // Sticky Moveable Header Shrink & Glass Backdrop Effect
+    ScrollTrigger.create({
+      start: 50,
+      onUpdate: (self) => {
+        const header = document.getElementById('siteHeader');
+        const container = document.getElementById('navContainer');
+        if (self.scroll() > 50) {
+          header.classList.add('bg-slate-950/90', 'shadow-2xl', 'shadow-black/60', 'backdrop-blur-xl', 'border-brand-500/20');
+          header.classList.remove('glass-nav', 'border-slate-800');
+          container.classList.remove('h-20');
+          container.classList.add('h-16');
+        } else {
+          header.classList.remove('bg-slate-950/90', 'shadow-2xl', 'shadow-black/60', 'backdrop-blur-xl', 'border-brand-500/20');
+          header.classList.add('glass-nav', 'border-slate-800');
+          container.classList.remove('h-16');
+          container.classList.add('h-20');
+        }
+      }
+    });
+
+    // Active Section Indicator for Navigation Links
+    ['#home', '#about-founder', '#collection', '#contact'].forEach(secId => {
+      const section = document.querySelector(secId);
+      const link = document.querySelector(`a[href="${secId}"]`);
+      if (section && link) {
+        const indicator = link.querySelector('.nav-indicator');
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 40%',
+          end: 'bottom 40%',
+          onToggle: (self) => {
+            if (self.isActive) {
+              link.classList.add('text-brand-500');
+              link.classList.remove('text-slate-300');
+              if (indicator) indicator.classList.remove('scale-x-0');
+            } else {
+              link.classList.remove('text-brand-500');
+              link.classList.add('text-slate-300');
+              if (indicator) indicator.classList.add('scale-x-0');
+            }
+          }
+        });
+      }
+    });
+
+    const heroTl = gsap.timeline({ delay: 0.2 });
+    heroTl
+      .to('.hero-badge', { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' })
+      .to('.hero-line span', { y: 0, duration: 0.9, stagger: 0.12, ease: 'power4.out' }, '-=0.3')
+      .to('#heroDesc', { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+      .to('#heroBtns', { opacity: 1, duration: 0.7, ease: 'power2.out' }, '-=0.4');
+
+    gsap.to('#heroContent', {
+      yPercent: -25,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: '#home', start: 'top top', end: 'bottom top', scrub: true }
+    });
+
+    gsap.to('#bgVid', {
+      scale: 1.18,
+      ease: 'none',
+      scrollTrigger: { start: 0, end: 'max', scrub: true }
+    });
+
+    // Pinned Scroll Video Scrubbing
+    const scrubVideo = document.getElementById('scrubVideo');
+    const bgVid = document.getElementById('bgVid');
+    const scrubBar = document.getElementById('scrubBar');
+    const captions = gsap.utils.toArray('.scrub-caption');
+    let targetTime = 0;
+    let scrubPinCreated = false;
+    let scrollRate = 0;
+    let scrollDirection = 1;
+    let reverseHold = false;
+    let lastScrollUpdate = 0;
+    let resyncing = false;
+    let smoothRate = 0;
+    let lastSeek = 0;
+
+    function createScrubPin() {
+      if (scrubPinCreated || !scrubVideo.duration) return;
+      scrubPinCreated = true;
+      ScrollTrigger.create({
+        trigger: '#videoScrubSection',
+        start: 'top top',
+        end: '+=140%',
+        pin: true,
+        onEnter: () => bgVid.pause(),
+        onEnterBack: () => bgVid.pause(),
+        onLeave: () => { bgVid.play(); scrubVideo.pause(); },
+        onLeaveBack: () => { bgVid.play(); scrubVideo.pause(); },
+        onUpdate: (self) => {
+          targetTime = self.progress * scrubVideo.duration;
+          scrollRate = self.getVelocity() * scrubVideo.duration / (self.end - self.start);
+          scrollDirection = self.direction || 1;
+          reverseHold = scrollDirection < 0;
+          lastScrollUpdate = performance.now();
+          scrubBar.style.width = (self.progress * 100) + '%';
+
+          const step = Math.min(captions.length - 1, Math.floor(self.progress * captions.length));
+          captions.forEach((cap, i) => {
+            gsap.to(cap, { opacity: i === step ? 1 : 0, y: i === step ? 0 : 20, duration: 0.4, ease: 'power2.out' });
+          });
+        }
+      });
+      ScrollTrigger.refresh();
+    }
+
+    if (scrubVideo.readyState >= 1) createScrubPin();
+    else scrubVideo.addEventListener('loadedmetadata', createScrubPin);
+
+    // Generic Reveals
+    gsap.utils.toArray('.reveal-up').forEach(el => {
+      gsap.to(el, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
+    });
+    gsap.utils.toArray('.reveal-left').forEach(el => {
+      gsap.to(el, { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
+    });
+    gsap.utils.toArray('.reveal-right').forEach(el => {
+      gsap.to(el, { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
+    });
+    gsap.utils.toArray('.reveal-scale').forEach(el => {
+      gsap.to(el, { opacity: 1, scale: 1, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 88%' } });
+    });
+
+    // Counters
+    gsap.utils.toArray('.counter').forEach(counter => {
+      const target = parseInt(counter.dataset.target, 10);
+      ScrollTrigger.create({
+        trigger: counter,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.fromTo(counter, { innerText: 0 }, { innerText: target, duration: 1.8, snap: { innerText: 1 }, ease: 'power2.out' });
+        }
+      });
+    });
+
+    // Cursor Glow
+    const glow = document.getElementById('cursorGlow');
+    window.addEventListener('mousemove', (e) => {
+      gsap.to(glow, { x: e.clientX, y: e.clientY, duration: 0.6, ease: 'power3.out' });
+    });
+
+    // Init Store Products on DOM Ready
+    window.addEventListener('DOMContentLoaded', () => {
+      initProductStore();
+    });
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+  </script>
+</body>
+
+</html>
